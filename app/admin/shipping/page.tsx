@@ -6,9 +6,15 @@ import { Plus, Pencil, Trash2, Truck } from "lucide-react";
 import { useShippingZoneStore, ShippingZone } from "@/store/shippingZoneStore";
 import ShippingZoneModal from "@/features/admin/shipping/components/ShippingZoneModal";
 import Loading from "@/components/ui/Loading";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function ShippingZonesPage() {
     const searchParams = useSearchParams();
+    const { can } = usePermissions();
+    const canCreate = can("shipping", "create");
+    const canEdit = can("shipping", "update");
+    const canDelete = can("shipping", "delete");
+
     const { zones, isLoading, isMutating, fetchZones, updateZone, deleteZone } =
         useShippingZoneStore();
 
@@ -46,16 +52,18 @@ export default function ShippingZonesPage() {
     }, [fetchZones]);
 
     useEffect(() => {
-        if (searchParams.get("action") === "add") {
+        if (searchParams.get("action") === "add" && canCreate) {
             setModalZone(null);
         }
-    }, [searchParams]);
+    }, [searchParams, canCreate]);
 
     const handleToggleActive = (zone: ShippingZone) => {
+        if (!canEdit) return;
         updateZone(zone._id, { isActive: !zone.isActive });
     };
 
     const handleDelete = async (id: string) => {
+        if (!canDelete) return;
         if (!confirm("Are you sure you want to delete this shipping zone?")) return;
         setDeletingId(id);
         try {
@@ -64,6 +72,12 @@ export default function ShippingZonesPage() {
             setDeletingId(null);
         }
     };
+
+    const canManageRow = canEdit || canDelete;
+    // modalZone === null means "add" mode, an actual zone object means "edit" mode —
+    // each mode needs its own permission check, not a single canEdit gate for both.
+    const canShowModal =
+        modalZone !== undefined && (modalZone === null ? canCreate : canEdit);
 
     return (
         <div className="p-4 sm:p-8">
@@ -75,14 +89,16 @@ export default function ShippingZonesPage() {
                     </p>
                 </div>
 
-                <button
-                    type="button"
-                    onClick={() => setModalZone(null)}
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90 sm:w-auto"
-                >
-                    <Plus size={17} />
-                    Add Zone
-                </button>
+                {canCreate && (
+                    <button
+                        type="button"
+                        onClick={() => setModalZone(null)}
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90 sm:w-auto"
+                    >
+                        <Plus size={17} />
+                        Add Zone
+                    </button>
+                )}
             </div>
 
             <div className="mt-6 sm:mt-8">
@@ -128,7 +144,7 @@ export default function ShippingZonesPage() {
                                         <button
                                             type="button"
                                             onClick={() => handleToggleActive(zone)}
-                                            disabled={isMutating}
+                                            disabled={isMutating || !canEdit}
                                             className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-50 ${
                                                 zone.isActive
                                                     ? "bg-linear-to-b from-gray-800 via-gray-700 to-black"
@@ -142,27 +158,33 @@ export default function ShippingZonesPage() {
                                             />
                                         </button>
 
-                                        <div className="flex shrink-0 items-center gap-7">
-                                            <button
-                                                type="button"
-                                                onClick={() => setModalZone(zone)}
-                                                className="flex items-center gap-1.5 text-sm font-medium text-gray-500 transition hover:text-black"
-                                            >
-                                                <Pencil size={14} />
-                                                <span className="hidden sm:inline">Edit</span>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleDelete(zone._id)}
-                                                disabled={deletingId === zone._id}
-                                                className="flex items-center gap-1.5 text-sm font-medium text-red-500 transition hover:text-red-600 disabled:opacity-50"
-                                            >
-                                                <Trash2 size={14} />
-                                                <span className="hidden sm:inline">
-                                                    {deletingId === zone._id ? "Deleting..." : "Delete"}
-                                                </span>
-                                            </button>
-                                        </div>
+                                        {canManageRow && (
+                                            <div className="flex shrink-0 items-center gap-7">
+                                                {canEdit && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setModalZone(zone)}
+                                                        className="flex items-center gap-1.5 text-sm font-medium text-gray-500 transition hover:text-black"
+                                                    >
+                                                        <Pencil size={14} />
+                                                        <span className="hidden sm:inline">Edit</span>
+                                                    </button>
+                                                )}
+                                                {canDelete && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDelete(zone._id)}
+                                                        disabled={deletingId === zone._id}
+                                                        className="flex items-center gap-1.5 text-sm font-medium text-red-500 transition hover:text-red-600 disabled:opacity-50"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                        <span className="hidden sm:inline">
+                                                            {deletingId === zone._id ? "Deleting..." : "Delete"}
+                                                        </span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -171,8 +193,8 @@ export default function ShippingZonesPage() {
                 </div>
             </div>
 
-            {modalZone !== undefined && (
-                <ShippingZoneModal zone={modalZone} onClose={() => setModalZone(undefined)} />
+            {canShowModal && (
+                <ShippingZoneModal zone={modalZone!} onClose={() => setModalZone(undefined)} />
             )}
         </div>
     );

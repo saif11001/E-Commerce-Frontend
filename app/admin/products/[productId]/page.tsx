@@ -6,10 +6,14 @@ import Link from "next/link";
 import { ArrowLeft, Pencil, Trash2, Box, Tag } from "lucide-react";
 import { useProductStore } from "@/store/productStore";
 import ProductImageGallery from "@/features/admin/products/components/ProductImageGallery";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function SingleProductPage() {
   const { productId } = useParams<{ productId: string }>();
   const router = useRouter();
+  const { can } = usePermissions();
+  const canEdit = can("products", "update");
+  const canDelete = can("products", "delete");
 
   const currentProduct = useProductStore((state) => state.currentProduct);
   const isLoading = useProductStore((state) => state.isLoading);
@@ -22,7 +26,7 @@ export default function SingleProductPage() {
   }, [productId, fetchProductById]);
 
   const handleDelete = async () => {
-    if (!currentProduct) return;
+    if (!currentProduct || !canDelete) return;
     const confirmed = window.confirm("Are you sure you want to delete this product?");
     if (!confirmed) return;
 
@@ -51,6 +55,7 @@ export default function SingleProductPage() {
   }
 
   const product = currentProduct;
+  const showActions = canEdit || canDelete;
 
   return (
     <div className="min-h-[calc(100vh-80px)] overflow-y-auto p-6 pb-24 sm:pb-6">
@@ -161,21 +166,27 @@ export default function SingleProductPage() {
           </div>
 
           {/* Edit/Delete row: hidden on mobile, shown inline from sm breakpoint up */}
-          <div className="mt-6 hidden gap-3 sm:flex">
-            <button
-              onClick={handleDelete}
-              className="flex-1 rounded-2xl bg-gray-100 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50"
-            >
-              Delete
-            </button>
-            <Link
-              href={`/admin/products/${product._id}/edit`}
-              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black py-3 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90"
-            >
-              <Pencil size={15} />
-              Edit
-            </Link>
-          </div>
+          {showActions && (
+            <div className="mt-6 hidden gap-3 sm:flex">
+              {canDelete && (
+                <button
+                  onClick={handleDelete}
+                  className="flex-1 rounded-2xl bg-gray-100 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50"
+                >
+                  Delete
+                </button>
+              )}
+              {canEdit && (
+                <Link
+                  href={`/admin/products/${product._id}/edit`}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black py-3 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90"
+                >
+                  <Pencil size={15} />
+                  Edit
+                </Link>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">
@@ -188,21 +199,27 @@ export default function SingleProductPage() {
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 flex gap-3 border-t border-gray-200 bg-white p-4 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.15)] sm:hidden">
-        <button
-          onClick={handleDelete}
-          className="flex-1 rounded-2xl bg-gray-100 py-3.5 text-sm font-semibold text-red-500 transition hover:bg-red-50"
-        >
-          Delete
-        </button>
-        <Link
-          href={`/admin/products/${product._id}/edit`}
-          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black py-3.5 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90"
-        >
-          <Pencil size={15} />
-          Edit
-        </Link>
-      </div>
+      {showActions && (
+        <div className="fixed inset-x-0 bottom-0 z-40 flex gap-3 border-t border-gray-200 bg-white p-4 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.15)] sm:hidden">
+          {canDelete && (
+            <button
+              onClick={handleDelete}
+              className="flex-1 rounded-2xl bg-gray-100 py-3.5 text-sm font-semibold text-red-500 transition hover:bg-red-50"
+            >
+              Delete
+            </button>
+          )}
+          {canEdit && (
+            <Link
+              href={`/admin/products/${product._id}/edit`}
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black py-3.5 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90"
+            >
+              <Pencil size={15} />
+              Edit
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -5,8 +5,12 @@ import { Trash2 } from "lucide-react";
 import { useAdminUserStore, AdminUser } from "@/store/Adminuserstore";
 import UsersListPanel from "@/features/admin/users/components/UsersListPanel";
 import UserDetailsPanel from "@/features/admin/users/components/UserDetailsPanel";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function AdminUsersPage() {
+    const { can } = usePermissions();
+    const canDelete = can("users", "delete");
+
     const {
         users,
         pagination,
@@ -40,6 +44,7 @@ export default function AdminUsersPage() {
     const selectedUser = users.find((u) => u._id === selectedId) || null;
 
     const handleDelete = async (user: AdminUser) => {
+        if (!canDelete) return;
         if (!window.confirm(`Are you sure you want to delete ${user.name}?`)) return;
         setActionError("");
         setActionSuccess("");
@@ -56,6 +61,7 @@ export default function AdminUsersPage() {
     };
 
     const handleDeleteAll = async () => {
+        if (!canDelete) return;
         const confirmed = window.confirm(
             "This will delete ALL regular users (role: user). Admins, managers and support accounts won't be affected. This can't be undone. Continue?"
         );
@@ -86,15 +92,17 @@ export default function AdminUsersPage() {
                     </p>
                 </div>
 
-                <button
-                    type="button"
-                    onClick={handleDeleteAll}
-                    disabled={isMutating || users.length === 0}
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-red-100 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-100 disabled:opacity-50 sm:w-auto"
-                >
-                    <Trash2 size={16} />
-                    Delete All Users
-                </button>
+                {canDelete && (
+                    <button
+                        type="button"
+                        onClick={handleDeleteAll}
+                        disabled={isMutating || users.length === 0}
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-red-100 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-100 disabled:opacity-50 sm:w-auto"
+                    >
+                        <Trash2 size={16} />
+                        Delete All Users
+                    </button>
+                )}
             </div>
 
             {actionError && (
@@ -116,7 +124,7 @@ export default function AdminUsersPage() {
                     selectedId={selectedId}
                     deletingId={deletingId}
                     onSelect={setSelectedId}
-                    onDelete={handleDelete}
+                    onDelete={canDelete ? handleDelete : undefined}
                     onPageChange={goToPage}
                 />
 
@@ -129,7 +137,7 @@ export default function AdminUsersPage() {
                         detailsError={detailsError}
                         isMutating={isMutating}
                         isDeleting={deletingId === selectedUser?._id}
-                        onDelete={handleDelete}
+                        onDelete={canDelete ? handleDelete : undefined}
                     />
                 </div>
             </div>

@@ -28,7 +28,7 @@ export default function UsersListPanel({
     selectedId: string | null;
     deletingId: string | null;
     onSelect: (id: string) => void;
-    onDelete: (user: AdminUser) => void;
+    onDelete?: (user: AdminUser) => void;
     onPageChange: (page: number) => void;
 }) {
     // Click-and-drag scrolling for the users list (mouse only —

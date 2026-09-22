@@ -13,8 +13,8 @@ export default function CategoryList({
   selectedCategoryId: string | null;
   deletingId: string | null;
   onSelect: (category: Category) => void;
-  onEdit: (category: Category) => void;
-  onDelete: (categoryId: string) => void;
+  onEdit?: (category: Category) => void;
+  onDelete?: (categoryId: string) => void;
 }) {
   if (categories.length === 0) {
     return (
@@ -33,14 +33,22 @@ export default function CategoryList({
           isSelected={selectedCategoryId === category._id}
           isDeleting={deletingId === category._id}
           onSelect={() => onSelect(category)}
-          onEdit={(e) => {
-            e.stopPropagation();
-            onEdit(category);
-          }}
-          onDelete={(e) => {
-            e.stopPropagation();
-            onDelete(category._id);
-          }}
+          onEdit={
+            onEdit
+              ? (e) => {
+                  e.stopPropagation();
+                  onEdit(category);
+                }
+              : undefined
+          }
+          onDelete={
+            onDelete
+              ? (e) => {
+                  e.stopPropagation();
+                  onDelete(category._id);
+                }
+              : undefined
+          }
         />
       ))}
     </div>

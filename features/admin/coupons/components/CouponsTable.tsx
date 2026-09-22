@@ -17,9 +17,9 @@ export default function CouponsTable({
     coupons: Coupon[];
     deletingId: string | null;
     editingId: string | null;
-    onToggleActive: (coupon: Coupon) => void;
-    onEdit: (coupon: Coupon) => void;
-    onDelete: (couponId: string) => void;
+    onToggleActive?: (coupon: Coupon) => void;
+    onEdit?: (coupon: Coupon) => void;
+    onDelete?: (couponId: string) => void;
     onCancelEdit: () => void;
     onEditSuccess: (coupon: Coupon) => void;
 }) {

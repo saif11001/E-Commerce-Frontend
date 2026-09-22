@@ -13,10 +13,11 @@ export default function CategoryListItem({
   isSelected: boolean;
   isDeleting: boolean;
   onSelect: () => void;
-  onEdit: (e: React.MouseEvent) => void;
-  onDelete: (e: React.MouseEvent) => void;
+  onEdit?: (e: React.MouseEvent) => void;
+  onDelete?: (e: React.MouseEvent) => void;
 }) {
-  
+  const showActions = onEdit || onDelete;
+
   return (
     <div
       onClick={onSelect}
@@ -50,23 +51,29 @@ export default function CategoryListItem({
         <p className="mt-0.5 truncate text-sm text-gray-500">{category.description}</p>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5">
-        <button
-          onClick={onEdit}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-black"
-          title="Edit"
-        >
-          <Pencil size={15} />
-        </button>
-        <button
-          onClick={onDelete}
-          disabled={isDeleting}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
-          title="Delete"
-        >
-          <Trash2 size={15} />
-        </button>
-      </div>
+      {showActions && (
+        <div className="flex shrink-0 items-center gap-1.5">
+          {onEdit && (
+            <button
+              onClick={onEdit}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-black"
+              title="Edit"
+            >
+              <Pencil size={15} />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={onDelete}
+              disabled={isDeleting}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
+              title="Delete"
+            >
+              <Trash2 size={15} />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -10,10 +10,12 @@ export default function CategoryDetails({
 }: {
   category: Category;
   onClose: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
   isDeleting: boolean;
 }) {
+  const showActions = onEdit || onDelete;
+
   return (
     <div className="flex h-full flex-col justify-center overflow-hidden rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">
       <div className="flex items-start justify-between">
@@ -48,23 +50,29 @@ export default function CategoryDetails({
         <p className="mt-0.5 text-sm font-medium text-black">{category.slug}</p>
       </div>
 
-      <div className="mt-6 flex gap-3">
-        <button
-          onClick={onEdit}
-          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black py-3 text-sm font-semibold text-white transition hover:opacity-90"
-        >
-          <Pencil size={15} />
-          Edit
-        </button>
-        <button
-          onClick={onDelete}
-          disabled={isDeleting}
-          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gray-100 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50 disabled:opacity-50"
-        >
-          <Trash2 size={15} />
-          {isDeleting ? "Deleting..." : "Delete"}
-        </button>
-      </div>
+      {showActions && (
+        <div className="mt-6 flex gap-3">
+          {onEdit && (
+            <button
+              onClick={onEdit}
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black py-3 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              <Pencil size={15} />
+              Edit
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={onDelete}
+              disabled={isDeleting}
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gray-100 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50 disabled:opacity-50"
+            >
+              <Trash2 size={15} />
+              {isDeleting ? "Deleting..." : "Delete"}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -23,17 +23,21 @@ import {
   X,
 } from "lucide-react";
 import { useUIStore } from "../../store/uiStore";
+import { usePermissions } from "@/hooks/usePermissions";
+import { Action, Section, getHomePath } from "@/lib/permissions";
 
 interface SubItem {
   label: string;
   href: string;
   icon: React.ElementType;
+  action?: Action; // defaults to "view"
 }
 
 interface NavItem {
   label: string;
   href: string;
   icon: React.ElementType;
+  section: Section;
   subItems?: SubItem[];
 }
 
@@ -42,6 +46,7 @@ const navItems: NavItem[] = [
     label: "Analytics",
     href: "/admin/analytics",
     icon: LayoutDashboard,
+    section: "analytics",
     subItems: [
       { label: "Overview", href: "/admin/analytics?tab=overview", icon: BarChart3 },
       { label: "Sales", href: "/admin/analytics?tab=sales", icon: TrendingUp },
@@ -53,24 +58,27 @@ const navItems: NavItem[] = [
     label: "Categories",
     href: "/admin/categories",
     icon: FolderTree,
+    section: "categories",
     subItems: [
       { label: "All Categories", href: "/admin/categories", icon: List },
-      { label: "Add Category", href: "/admin/categories?action=add", icon: Plus },
+      { label: "Add Category", href: "/admin/categories?action=add", icon: Plus, action: "create" },
     ],
   },
   {
     label: "Products",
     href: "/admin/products",
     icon: Package,
+    section: "products",
     subItems: [
       { label: "All Products", href: "/admin/products", icon: List },
-      { label: "Add Product", href: "/admin/products/new", icon: Plus },
+      { label: "Add Product", href: "/admin/products/new", icon: Plus, action: "create" },
     ],
   },
   {
     label: "Orders",
     href: "/admin/orders",
     icon: ShoppingBag,
+    section: "orders",
     subItems: [
       { label: "All Orders", href: "/admin/orders", icon: List },
       { label: "Pending", href: "/admin/orders?status=pending", icon: Clock },
@@ -84,29 +92,40 @@ const navItems: NavItem[] = [
     label: "Coupons",
     href: "/admin/coupons",
     icon: Ticket,
+    section: "coupons",
     subItems: [
       { label: "All Coupons", href: "/admin/coupons", icon: List },
-      { label: "Add Coupon", href: "/admin/coupons?action=add", icon: Plus },
+      { label: "Add Coupon", href: "/admin/coupons?action=add", icon: Plus, action: "create" },
     ],
   },
   {
     label: "Shipping",
     href: "/admin/shipping",
     icon: Truck,
+    section: "shipping",
     subItems: [
       { label: "All Zones", href: "/admin/shipping", icon: List },
-      { label: "Add Zone", href: "/admin/shipping?action=add", icon: Plus },
+      { label: "Add Zone", href: "/admin/shipping?action=add", icon: Plus, action: "create" },
     ],
   },
-  { label: "Users", href: "/admin/users", icon: Users },
+  { label: "Users", href: "/admin/users", icon: Users, section: "users" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { role, can } = usePermissions();
 
   const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
   const closeSidebar = useUIStore((state) => state.closeSidebar);
+
+  // Only show the sections (and sub-links) the current role is allowed to use
+  const visibleItems: NavItem[] = navItems
+    .filter((item) => can(item.section))
+    .map((item) => {
+      const subItems = item.subItems?.filter((sub) => can(item.section, sub.action ?? "view"));
+      return { ...item, subItems: subItems && subItems.length > 0 ? subItems : undefined };
+    });
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
@@ -152,7 +171,7 @@ export default function Sidebar() {
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black text-sm font-bold text-white">
               V
             </div>
-            <Link href="/admin/analytics">
+            <Link href={getHomePath(role)}>
               <span className="text-lg font-extrabold text-black">Venerdi</span>
             </Link>
           </div>
@@ -167,11 +186,11 @@ export default function Sidebar() {
         </div>
 
         <p className="mt-8 px-2 text-xs font-medium uppercase tracking-wide text-gray-400">
-          dashboard admin
+          dashboard {role}
         </p>
 
         <nav className="mt-3 flex flex-1 flex-col gap-1 overflow-y-auto">
-          {navItems.map((item) => {
+          {visibleItems.map((item) => {
             const isActive =
               pathname === item.href || pathname?.startsWith(item.href + "/");
             const Icon = item.icon;

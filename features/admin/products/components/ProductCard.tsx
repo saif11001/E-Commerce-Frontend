@@ -6,13 +6,18 @@ export default function ProductCard({
   product,
   isDeleting,
   onSelect,
+  onEdit = false,
   onDelete,
 }: {
   product: Product;
   isDeleting: boolean;
   onSelect: () => void;
-  onDelete: (e: React.MouseEvent) => void;
+  /** Pass true to show the Edit link (defaults to hidden — caller must opt in based on permission). */
+  onEdit?: boolean;
+  onDelete?: (e: React.MouseEvent) => void;
 }) {
+  const showFooter = onEdit || onDelete;
+
   return (
     <div
       onClick={onSelect}
@@ -89,24 +94,30 @@ export default function ProductCard({
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
-          <Link
-            href={`/admin/products/${product._id}/edit`}
-            onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1.5 text-sm font-medium text-gray-500 transition hover:text-black"
-          >
-            <Pencil size={14} />
-            Edit
-          </Link>
-          <button
-            onClick={onDelete}
-            disabled={isDeleting}
-            className="flex items-center gap-1.5 text-sm font-medium text-red-500 transition hover:text-red-600 disabled:opacity-50"
-          >
-            <Trash2 size={14} />
-            {isDeleting ? "Deleting..." : "Delete"}
-          </button>
-        </div>
+        {showFooter && (
+          <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
+            {onEdit && (
+              <Link
+                href={`/admin/products/${product._id}/edit`}
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1.5 text-sm font-medium text-gray-500 transition hover:text-black"
+              >
+                <Pencil size={14} />
+                Edit
+              </Link>
+            )}
+            {onDelete && (
+              <button
+                onClick={onDelete}
+                disabled={isDeleting}
+                className="flex items-center gap-1.5 text-sm font-medium text-red-500 transition hover:text-red-600 disabled:opacity-50"
+              >
+                <Trash2 size={14} />
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -6,9 +6,14 @@ import { Ticket, Plus, X } from "lucide-react";
 import CouponsTable from "@/features/admin/coupons/components/CouponsTable";
 import CouponForm from "@/features/admin/coupons/components/CouponForm";
 import { useCouponStore, Coupon } from "@/store/couponStore";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function CouponsPage() {
   const searchParams = useSearchParams();
+  const { can } = usePermissions();
+  const canCreate = can("coupons", "create");
+  const canEdit = can("coupons", "update");
+  const canDelete = can("coupons", "delete");
 
   const coupons = useCouponStore((state) => state.coupons);
   const isLoading = useCouponStore((state) => state.isLoading);
@@ -52,13 +57,14 @@ export default function CouponsPage() {
   }, []);
 
   useEffect(() => {
-    if (searchParams.get("action") === "add") {
+    if (searchParams.get("action") === "add" && canCreate) {
       setEditingId(null);
       setShowAddForm(true);
     }
-  }, [searchParams]);
+  }, [searchParams, canCreate]);
 
   const handleDelete = async (couponId: string) => {
+    if (!canDelete) return;
     const confirmed = window.confirm("Are you sure you want to delete this coupon?");
     if (!confirmed) return;
 
@@ -73,6 +79,7 @@ export default function CouponsPage() {
   };
 
   const handleToggleActive = async (coupon: Coupon) => {
+    if (!canEdit) return;
     try {
       await updateCoupon(coupon._id, { isActive: !coupon.isActive });
     } catch (err: any) {
@@ -81,6 +88,7 @@ export default function CouponsPage() {
   };
 
   const handleEdit = (coupon: Coupon) => {
+    if (!canEdit) return;
     setEditingId(coupon._id);
   };
 
@@ -121,17 +129,19 @@ export default function CouponsPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowAddForm((prev) => !prev)}
-          className="flex items-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90"
-        >
-          {showAddForm ? <X size={16} /> : <Plus size={16} />}
-          {showAddForm ? "Cancel" : "Add Coupon"}
-        </button>
+        {canCreate && (
+          <button
+            type="button"
+            onClick={() => setShowAddForm((prev) => !prev)}
+            className="flex items-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90"
+          >
+            {showAddForm ? <X size={16} /> : <Plus size={16} />}
+            {showAddForm ? "Cancel" : "Add Coupon"}
+          </button>
+        )}
       </div>
 
-      {showAddForm && (
+      {showAddForm && canCreate && (
         <div className="mb-6">
           <CouponForm onSuccess={handleCreateSuccess} onCancel={() => setShowAddForm(false)} />
         </div>
@@ -149,9 +159,9 @@ export default function CouponsPage() {
           coupons={coupons}
           deletingId={deletingId}
           editingId={editingId}
-          onToggleActive={handleToggleActive}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onToggleActive={canEdit ? handleToggleActive : undefined}
+          onEdit={canEdit ? handleEdit : undefined}
+          onDelete={canDelete ? handleDelete : undefined}
           onCancelEdit={() => setEditingId(null)}
           onEditSuccess={handleEditSuccess}
         />

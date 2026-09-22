@@ -9,11 +9,16 @@ import CategoryDetails from "@/features/admin/categories/components/CategoryDeta
 import AddCategoryForm from "@/features/admin/categories/components/AddCategoryForm";
 import EditCategoryForm from "@/features/admin/categories/components/EditCategoryForm";
 import Loading from "@/components/ui/Loading";
+import { usePermissions } from "@/hooks/usePermissions";
 
 type Mode = "details" | "add" | "edit";
 
 export default function CategoriesPage() {
   const searchParams = useSearchParams();
+  const { can } = usePermissions();
+  const canCreate = can("categories", "create");
+  const canEdit = can("categories", "update");
+  const canDelete = can("categories", "delete");
 
   const categories = useCategoryStore((state) => state.categories);
   const isLoading = useCategoryStore((state) => state.isLoading);
@@ -22,7 +27,7 @@ export default function CategoriesPage() {
   const deleteCategory = useCategoryStore((state) => state.deleteCategory);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [mode, setMode] = useState<Mode>("add");
+  const [mode, setMode] = useState<Mode>(canCreate ? "add" : "details");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState("");
 
@@ -57,11 +62,11 @@ export default function CategoriesPage() {
   }, []);
 
   useEffect(() => {
-    if (searchParams.get("action") === "add") {
+    if (searchParams.get("action") === "add" && canCreate) {
       setSelectedCategoryId(null);
       setMode("add");
     }
-  }, [searchParams]);
+  }, [searchParams, canCreate]);
 
   const selectedCategory = categories.find((c) => c._id === selectedCategoryId) || null;
 
@@ -71,16 +76,19 @@ export default function CategoriesPage() {
   };
 
   const handleEdit = (category: Category) => {
+    if (!canEdit) return;
     setSelectedCategoryId(category._id);
     setMode("edit");
   };
 
   const handleAddNew = () => {
+    if (!canCreate) return;
     setSelectedCategoryId(null);
     setMode("add");
   };
 
   const handleDelete = async (categoryId: string) => {
+    if (!canDelete) return;
     const confirmed = window.confirm("Are you sure you want to delete this category?");
     if (!confirmed) return;
 
@@ -90,7 +98,7 @@ export default function CategoriesPage() {
       await deleteCategory(categoryId);
       if (selectedCategoryId === categoryId) {
         setSelectedCategoryId(null);
-        setMode("add");
+        setMode(canCreate ? "add" : "details");
       }
     } catch (error: any) {
       setDeleteError(error.response?.data?.message || "Failed to delete category");
@@ -110,14 +118,16 @@ export default function CategoriesPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleAddNew}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90 sm:w-auto"
-        >
-          <Plus size={17} />
-          Add Category
-        </button>
+        {canCreate && (
+          <button
+            type="button"
+            onClick={handleAddNew}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90 sm:w-auto"
+          >
+            <Plus size={17} />
+            Add Category
+          </button>
+        )}
       </div>
 
       {deleteError && (
@@ -153,15 +163,15 @@ export default function CategoriesPage() {
                 selectedCategoryId={selectedCategoryId}
                 deletingId={deletingId}
                 onSelect={handleSelect}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+                onEdit={canEdit ? handleEdit : undefined}
+                onDelete={canDelete ? handleDelete : undefined}
               />
             )}
           </div>
         </div>
 
         <div className="flex min-w-0 flex-col rounded-[28px] bg-white p-4 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] ring-1 ring-black/5 sm:p-6">
-          {mode === "add" && (
+          {mode === "add" && canCreate && (
             <>
               <h2 className="text-sm font-semibold text-black">Add New Category</h2>
               <p className="mt-1 text-xs text-gray-500">
@@ -173,7 +183,7 @@ export default function CategoriesPage() {
             </>
           )}
 
-          {mode === "edit" && selectedCategory && (
+          {mode === "edit" && canEdit && selectedCategory && (
             <>
               <h2 className="text-sm font-semibold text-black">Edit Category</h2>
               <div className="mt-4">
@@ -195,8 +205,8 @@ export default function CategoriesPage() {
                     category={selectedCategory}
                     isDeleting={deletingId === selectedCategory._id}
                     onClose={() => setSelectedCategoryId(null)}
-                    onEdit={() => setMode("edit")}
-                    onDelete={() => handleDelete(selectedCategory._id)}
+                    onEdit={canEdit ? () => setMode("edit") : undefined}
+                    onDelete={canDelete ? () => handleDelete(selectedCategory._id) : undefined}
                   />
                 ) : (
                   <p className="text-xs text-gray-500">

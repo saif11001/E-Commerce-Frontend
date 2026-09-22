@@ -6,6 +6,7 @@ import Link from "next/link";
 import api from "@/lib/axios";
 import { ArrowLeft, MapPin, CreditCard, Tag } from "lucide-react";
 import Loading from "@/components/ui/Loading";
+import { usePermissions } from "@/hooks/usePermissions";
 
 type OrderItem = {
   name: string;
@@ -50,6 +51,8 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default function SingleOrderPage() {
   const { id } = useParams<{ id: string }>();
+  const { can } = usePermissions();
+  const canUpdateStatus = can("orders", "update");
 
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [isFetching, setIsFetching] = useState(true);
@@ -72,7 +75,7 @@ export default function SingleOrderPage() {
   }, [id]);
 
   const handleStatusChange = async (newStatus: string) => {
-    if (!order || newStatus === order.orderStatus) return;
+    if (!order || newStatus === order.orderStatus || !canUpdateStatus) return;
 
     if (
       newStatus === "cancelled" &&
@@ -152,32 +155,42 @@ export default function SingleOrderPage() {
               </span>
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-2">
-              {STATUS_OPTIONS.map((status) => {
-                const isCurrent = order.orderStatus === status;
-                return (
-                  <button
-                    key={status}
-                    onClick={() => handleStatusChange(status)}
-                    disabled={isUpdating || isCurrent || isLocked}
-                    className={`rounded-full px-5 py-2 text-sm font-semibold capitalize transition disabled:cursor-default ${
-                      isCurrent
-                        ? "bg-linear-to-b from-gray-800 via-gray-700 to-black text-white"
-                        : "border border-gray-200 bg-white text-black hover:border-black disabled:opacity-50"
-                    }`}
-                  >
-                    {status}
-                  </button>
-                );
-              })}
-            </div>
-            {isLocked && (
+            {canUpdateStatus ? (
+              <>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {STATUS_OPTIONS.map((status) => {
+                    const isCurrent = order.orderStatus === status;
+                    return (
+                      <button
+                        key={status}
+                        onClick={() => handleStatusChange(status)}
+                        disabled={isUpdating || isCurrent || isLocked}
+                        className={`rounded-full px-5 py-2 text-sm font-semibold capitalize transition disabled:cursor-default ${
+                          isCurrent
+                            ? "bg-linear-to-b from-gray-800 via-gray-700 to-black text-white"
+                            : "border border-gray-200 bg-white text-black hover:border-black disabled:opacity-50"
+                        }`}
+                      >
+                        {status}
+                      </button>
+                    );
+                  })}
+                </div>
+                {isLocked && (
+                  <p className="mt-3 text-xs text-gray-400">
+                    This order's status is final and can't be changed.
+                  </p>
+                )}
+                {isUpdating && <p className="mt-3 text-xs text-gray-400">Updating status...</p>}
+                {statusError && (
+                  <p className="mt-3 text-xs font-medium text-red-500">{statusError}</p>
+                )}
+              </>
+            ) : (
               <p className="mt-3 text-xs text-gray-400">
-                This order's status is final and can't be changed.
+                You don't have permission to change the order status.
               </p>
             )}
-            {isUpdating && <p className="mt-3 text-xs text-gray-400">Updating status...</p>}
-            {statusError && <p className="mt-3 text-xs font-medium text-red-500">{statusError}</p>}
           </div>
 
           <div className="rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">

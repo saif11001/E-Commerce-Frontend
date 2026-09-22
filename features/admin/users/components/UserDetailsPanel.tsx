@@ -31,7 +31,7 @@ export default function UserDetailsPanel({
     detailsError: string | null;
     isMutating: boolean;
     isDeleting: boolean;
-    onDelete: (user: AdminUser) => void;
+    onDelete?: (user: AdminUser) => void;
 }) {
     if (!user) {
         return (
@@ -114,7 +114,7 @@ export default function UserDetailsPanel({
                 ) : null}
             </div>
 
-            {user.role !== "admin" && (
+            {onDelete && user.role !== "admin" && (
                 <button
                     type="button"
                     onClick={() => onDelete(user)}

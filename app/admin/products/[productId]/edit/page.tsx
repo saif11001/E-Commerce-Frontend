@@ -6,10 +6,13 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useProductStore } from "@/store/productStore";
 import ProductForm from "@/features/admin/products/components/ProductForm";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function EditProductPage() {
   const { productId } = useParams<{ productId: string }>();
   const router = useRouter();
+  const { can } = usePermissions();
+  const canEdit = can("products", "update");
 
   const currentProduct = useProductStore((state) => state.currentProduct);
   const isLoading = useProductStore((state) => state.isLoading);
@@ -19,6 +22,16 @@ export default function EditProductPage() {
   useEffect(() => {
     fetchProductById(productId);
   }, [productId, fetchProductById]);
+
+  useEffect(() => {
+    if (!canEdit) {
+      router.replace(`/admin/products/${productId}`);
+    }
+  }, [canEdit, productId, router]);
+
+  if (!canEdit) {
+    return null;
+  }
 
   if (isLoading) {
     return (

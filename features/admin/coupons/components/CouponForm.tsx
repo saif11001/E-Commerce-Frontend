@@ -67,7 +67,7 @@ export default function CouponForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-[24px] border border-gray-100 bg-gray-50/60 p-5">
+    <form onSubmit={handleSubmit} className="rounded-3xl border border-gray-100 bg-gray-50/60 p-5">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         <div className="md:col-span-1">
           <label className="mb-1 block text-xs font-medium text-black">Code</label>

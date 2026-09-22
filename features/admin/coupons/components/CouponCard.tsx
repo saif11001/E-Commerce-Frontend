@@ -10,11 +10,12 @@ export default function CouponCard({
 }: {
     coupon: Coupon;
     isDeleting: boolean;
-    onToggleActive: (coupon: Coupon) => void;
-    onEdit: (coupon: Coupon) => void;
-    onDelete: (couponId: string) => void;
+    onToggleActive?: (coupon: Coupon) => void;
+    onEdit?: (coupon: Coupon) => void;
+    onDelete?: (couponId: string) => void;
 }) {
     const isExpired = coupon.expiresAt && new Date(coupon.expiresAt) < new Date();
+    const showFooter = onEdit || onDelete;
 
     return (
         <div className="rounded-2xl border border-gray-100 bg-white px-5 py-10 shadow-sm">
@@ -24,18 +25,28 @@ export default function CouponCard({
                     <span className="text-base font-extrabold text-black">{coupon.code}</span>
                 </div>
 
-                <button
-                    onClick={() => onToggleActive(coupon)}
-                    className={`relative h-6 w-11 shrink-0 rounded-full transition ${
-                        coupon.isActive ? "bg-black" : "bg-gray-200"
-                    }`}
-                >
-                    <span
-                        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
-                            coupon.isActive ? "left-5.5" : "left-0.5"
+                {onToggleActive ? (
+                    <button
+                        onClick={() => onToggleActive(coupon)}
+                        className={`relative h-6 w-11 shrink-0 rounded-full transition ${
+                            coupon.isActive ? "bg-black" : "bg-gray-200"
                         }`}
-                    />
-                </button>
+                    >
+                        <span
+                            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+                                coupon.isActive ? "left-5.5" : "left-0.5"
+                            }`}
+                        />
+                    </button>
+                ) : (
+                    <span
+                        className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                            coupon.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                        }`}
+                    >
+                        {coupon.isActive ? "Active" : "Inactive"}
+                    </span>
+                )}
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-y-5 text-sm">
@@ -78,23 +89,29 @@ export default function CouponCard({
                 </div>
             </div>
 
-            <div className="mt-7 flex items-center gap-2 border-t border-gray-100 pt-4">
-                <button
-                    onClick={() => onEdit(coupon)}
-                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gray-50 py-2.5 text-sm font-semibold text-black transition hover:bg-gray-100"
-                >
-                    <Pencil size={14} />
-                    Edit
-                </button>
-                <button
-                    onClick={() => onDelete(coupon._id)}
-                    disabled={isDeleting}
-                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-50 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-100 disabled:opacity-50"
-                >
-                    <Trash2 size={14} />
-                    {isDeleting ? "Deleting..." : "Delete"}
-                </button>
-            </div>
+            {showFooter && (
+                <div className="mt-7 flex items-center gap-2 border-t border-gray-100 pt-4">
+                    {onEdit && (
+                        <button
+                            onClick={() => onEdit(coupon)}
+                            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gray-50 py-2.5 text-sm font-semibold text-black transition hover:bg-gray-100"
+                        >
+                            <Pencil size={14} />
+                            Edit
+                        </button>
+                    )}
+                    {onDelete && (
+                        <button
+                            onClick={() => onDelete(coupon._id)}
+                            disabled={isDeleting}
+                            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-50 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-100 disabled:opacity-50"
+                        >
+                            <Trash2 size={14} />
+                            {isDeleting ? "Deleting..." : "Delete"}
+                        </button>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

@@ -1,12 +1,26 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Package } from "lucide-react";
 import ProductForm from "@/features/admin/products/components/ProductForm";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function NewProductPage() {
   const router = useRouter();
+  const { can } = usePermissions();
+  const canCreate = can("products", "create");
+
+  useEffect(() => {
+    if (!canCreate) {
+      router.replace("/admin/products");
+    }
+  }, [canCreate, router]);
+
+  if (!canCreate) {
+    return null;
+  }
 
   return (
     <div className="p-6">

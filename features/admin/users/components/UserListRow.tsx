@@ -22,7 +22,7 @@ export default function UserListRow({
     isMutating: boolean;
     isDeleting: boolean;
     onSelect: (id: string) => void;
-    onDelete: (user: AdminUser) => void;
+    onDelete?: (user: AdminUser) => void;
 }) {
     return (
         <div
@@ -46,7 +46,7 @@ export default function UserListRow({
                 {user.role}
             </span>
 
-            {user.role !== "admin" && (
+            {onDelete && user.role !== "admin" && (
                 <button
                     type="button"
                     disabled={isMutating || isDeleting}

@@ -7,9 +7,14 @@ import { Package, Plus } from "lucide-react";
 import { useProductStore } from "@/store/productStore";
 import ProductCard from "@/features/admin/products/components/ProductCard";
 import Pagination from "@/components/ui/Pagination";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function ProductsPage() {
   const router = useRouter();
+  const { can } = usePermissions();
+  const canCreate = can("products", "create");
+  const canEdit = can("products", "update");
+  const canDelete = can("products", "delete");
 
   const products = useProductStore((state) => state.products);
   const pagination = useProductStore((state) => state.pagination);
@@ -31,6 +36,7 @@ export default function ProductsPage() {
 
   const handleDelete = async (e: React.MouseEvent, productId: string) => {
     e.stopPropagation();
+    if (!canDelete) return;
 
     const confirmed = window.confirm("Are you sure you want to delete this product?");
     if (!confirmed) return;
@@ -78,13 +84,15 @@ export default function ProductsPage() {
             {pagination.total} {pagination.total === 1 ? "product" : "products"} total
           </p>
         </div>
-        <Link
-          href="/admin/products/new"
-          className="flex items-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90"
-        >
-          <Plus size={16} />
-          Add Product
-        </Link>
+        {canCreate && (
+          <Link
+            href="/admin/products/new"
+            className="flex items-center gap-2 rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90"
+          >
+            <Plus size={16} />
+            Add Product
+          </Link>
+        )}
       </div>
 
       {products.length === 0 ? (
@@ -101,7 +109,8 @@ export default function ProductsPage() {
                 product={product}
                 isDeleting={deletingId === product._id}
                 onSelect={() => router.push(`/admin/products/${product._id}`)}
-                onDelete={(e) => handleDelete(e, product._id)}
+                onEdit={canEdit}
+                onDelete={canDelete ? (e) => handleDelete(e, product._id) : undefined}
               />
             ))}
           </div>
