@@ -45,18 +45,18 @@ export default function CheckoutCouponBox() {
                 </div>
             ) : (
                 <div>
-                    <div className="flex gap-2 rounded-2xl border border-gray-300 bg-white p-1.5">
+                    <div className="flex w-full gap-2 rounded-2xl border border-gray-300 bg-white p-1.5">
                         <input
                             value={couponCode}
                             onChange={(e) => setCouponCode(e.target.value)}
                             placeholder="Coupon code"
-                            className="flex-1 rounded-xl bg-white px-3 py-2 text-sm text-black outline-none placeholder:text-gray-400"
+                            className="min-w-0 flex-1 rounded-xl bg-white px-3 py-2 text-sm text-black outline-none placeholder:text-gray-400"
                         />
                         <button
                             type="button"
                             onClick={handleApplyCoupon}
                             disabled={isMutating}
-                            className="rounded-xl bg-linear-to-b from-gray-800 via-gray-700 to-black px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                            className="shrink-0 whitespace-nowrap rounded-xl bg-linear-to-b from-gray-800 via-gray-700 to-black px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
                         >
                             Apply
                         </button>
