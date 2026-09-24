@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import api from "@/lib/axios";
 import { useAuthStore } from "@/store/authStore";
+import Footer from "@/components/layout/Footer";
 
 export default function UserLayout({
     children
@@ -38,6 +39,7 @@ export default function UserLayout({
             <main>
                 {children}
             </main>
+            <Footer />
         </>
     )
 }
