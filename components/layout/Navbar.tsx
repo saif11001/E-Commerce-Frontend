@@ -18,6 +18,7 @@ export default function Navbar() {
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const cartCount = useCartCount();
   const fetchCart = useCartStore((state) => state.fetchCart);
@@ -28,6 +29,8 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     try {
       await api.post("/auth/logout");
     } catch {
@@ -35,6 +38,7 @@ export default function Navbar() {
       clearUser();
       setIsProfileOpen(false);
       setIsMenuOpen(false);
+      setIsLoggingOut(false);
       router.push("/");
     }
   };
@@ -133,7 +137,8 @@ export default function Navbar() {
 
                     <button
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm text-red-500 hover:bg-gray-100"
+                      disabled={isLoggingOut}
+                      className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm text-red-500 hover:bg-gray-100 disabled:opacity-50"
                     >
                       <LogOut size={17} />
                       Logout
@@ -228,7 +233,8 @@ export default function Navbar() {
             </Link>
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm text-red-500 hover:bg-gray-100"
+              disabled={isLoggingOut}
+              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm text-red-500 hover:bg-gray-100 disabled:opacity-50"
             >
               <LogOut size={17} />
               Logout
