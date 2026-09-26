@@ -21,6 +21,7 @@ import {
   XCircle,
   BarChart3,
   X,
+  MessageCircle,
 } from "lucide-react";
 import { useUIStore } from "../../store/uiStore";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -109,6 +110,7 @@ const navItems: NavItem[] = [
     ],
   },
   { label: "Users", href: "/admin/users", icon: Users, section: "users" },
+  { label: "Support Chat", href: "/admin/support-chat", icon: MessageCircle, section: "support-chat" },
 ];
 
 export default function Sidebar() {

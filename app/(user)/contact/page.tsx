@@ -1,7 +1,13 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
+import ChatWidget from "@/components/chat/ChatWidget";
 
 export default function ContactPage() {
+  const [showChat, setShowChat] = useState(false);
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
       <div className="mb-14 text-center">
@@ -43,26 +49,30 @@ export default function ContactPage() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-gray-100 bg-white p-10 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black text-white">
-            <MessageCircle size={26} />
+        {showChat ? (
+          <ChatWidget variant="inline" onCloseInline={() => setShowChat(false)} />
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-gray-100 bg-white p-10 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black text-white">
+              <MessageCircle size={26} />
+            </div>
+
+            <h3 className="mt-6 text-xl font-bold text-black">
+              Chat with our support team
+            </h3>
+            <p className="mt-2 max-w-sm text-sm text-gray-500">
+              Get real-time help with your orders, products, or account —
+              usually replies within a few minutes.
+            </p>
+
+            <button
+              onClick={() => setShowChat(true)}
+              className="mt-8 rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black px-10 py-3.5 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              Start a Conversation
+            </button>
           </div>
-
-          <h3 className="mt-6 text-xl font-bold text-black">
-            Chat with our support team
-          </h3>
-          <p className="mt-2 max-w-sm text-sm text-gray-500">
-            Get real-time help with your orders, products, or account —
-            usually replies within a few minutes.
-          </p>
-
-          <Link
-            href="/support"
-            className="mt-8 rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black px-10 py-3.5 text-sm font-semibold text-white transition hover:opacity-90"
-          >
-            Start a Conversation
-          </Link>
-        </div>
+        )}
       </div>
 
       <div className="h-16" />

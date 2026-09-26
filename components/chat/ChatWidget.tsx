@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
-import { connectToChat, disconnectChat } from "@/lib/socket";
+import Link from "next/link";
+import { connectToChat, disconnectChat, chatApiFetch } from "@/lib/socket";
 import { useAuthStore } from "@/store/authStore";
+import { usePathname } from "next/navigation";
 import type { Socket } from "socket.io-client";
 
 type Message = {
@@ -15,15 +17,35 @@ type Message = {
     createdAt?: string;
 };
 
-export default function ChatWidget() {
+type ChatWidgetProps = {
+    variant?: "floating" | "inline";
+    onCloseInline?: () => void;
+};
+
+const formatTime = (dateStr?: string) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
+
+export default function ChatWidget({ variant = "floating", onCloseInline }: ChatWidgetProps) {
     const { user, isAuthenticated } = useAuthStore();
-    const [isOpen, setIsOpen] = useState(false);
+    const pathname = usePathname();
+    const [isOpen, setIsOpen] = useState(variant === "inline");
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isConnected, setIsConnected] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [isSupportTyping, setIsSupportTyping] = useState(false);
 
     const socketRef = useRef<Socket | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isOpenRef = useRef(isOpen);
+
+    useEffect(() => {
+        isOpenRef.current = isOpen;
+    }, [isOpen]);
 
     useEffect(() => {
         if (!isAuthenticated) return;
@@ -46,7 +68,29 @@ export default function ChatWidget() {
 
             socket.on("chat message", (msg: Message) => {
                 setMessages((prev) => [...prev, msg]);
+
+                if (msg.senderRole !== "user" && !isOpenRef.current) {
+                    setUnreadCount((prev) => prev + 1);
+                }
+
+                if (isOpenRef.current && msg.senderRole !== "user") {
+                    socket.emit("mark read", { conversationId: user?._id });
+                }
             });
+
+            socket.on("typing", ({ role }: { role: string }) => {
+                if (role !== "user") setIsSupportTyping(true);
+            });
+
+            socket.on("stop typing", ({ role }: { role: string }) => {
+                if (role !== "user") setIsSupportTyping(false);
+            });
+
+            try {
+                const { messages: history } = await chatApiFetch(`/messages/${user?._id}`);
+                if (mounted) setMessages(history);
+            } catch {
+            }
         };
 
         setup();
@@ -55,12 +99,30 @@ export default function ChatWidget() {
             mounted = false;
             disconnectChat();
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
+    }, [messages, isSupportTyping]);
+
+    useEffect(() => {
+        if (isOpen && socketRef.current && user?._id) {
+            setUnreadCount(0);
+            socketRef.current.emit("mark read", { conversationId: user._id });
+        }
+    }, [isOpen, user?._id]);
+
+    const handleInputChange = (value: string) => {
+        setInput(value);
+        if (!socketRef.current || !user) return;
+
+        socketRef.current.emit("typing", { conversationId: user._id });
+
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+            socketRef.current?.emit("stop typing", { conversationId: user._id });
+        }, 1500);
+    };
 
     const handleSend = () => {
         if (!input.trim() || !socketRef.current || !user) return;
@@ -70,50 +132,85 @@ export default function ChatWidget() {
             content: input.trim(),
         });
 
+        socketRef.current.emit("stop typing", { conversationId: user._id });
         setInput("");
     };
 
-    if (!isAuthenticated) return null;
+    const handleClose = () => {
+        if (variant === "inline") {
+            onCloseInline?.();
+        } else {
+            setIsOpen(false);
+        }
+    };
 
-    return (
-        <div className="fixed bottom-6 right-6 z-50">
-            {isOpen ? (
-                <div className="flex h-96 w-80 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/10">
-                    <div className="flex items-center justify-between bg-black px-4 py-3 text-white">
-                        <span className="text-sm font-semibold">
-                            {isConnected ? "Support Chat" : "Connecting..."}
-                        </span>
-                        <button onClick={() => setIsOpen(false)}>
-                            <X size={18} />
-                        </button>
-                    </div>
+    const containerClass =
+        variant === "floating"
+            ? "flex h-96 w-80 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/10"
+            : "flex h-125 w-full flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white";
 
+    const chatBody = (
+        <div className={containerClass}>
+            <div className="flex items-center justify-between bg-black px-4 py-3 text-white">
+                <span className="text-sm font-semibold">
+                    {isAuthenticated ? (isConnected ? "Support Chat" : "Connecting...") : "Support Chat"}
+                </span>
+                <button onClick={handleClose}>
+                    <X size={18} />
+                </button>
+            </div>
+
+            {!isAuthenticated ? (
+                <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
+                    <p className="text-sm text-gray-500">
+                        لازم تسجل دخول الأول عشان تقدر تكلم فريق الدعم.
+                    </p>
+                    <Link
+                        href="/login"
+                        onClick={handleClose}
+                        className="rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-white"
+                    >
+                        تسجيل الدخول
+                    </Link>
+                </div>
+            ) : (
+                <>
                     <div className="flex-1 space-y-2 overflow-y-auto p-3">
-                        {messages.map((msg, i) => (
-                            <div
-                                key={msg._id || i}
-                                className={`flex ${
-                                    msg.senderRole === "user" ? "justify-end" : "justify-start"
-                                }`}
-                            >
+                        {messages.map((msg, i) => {
+                            const isMine = msg.senderRole === "user";
+                            return (
                                 <div
-                                    className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
-                                        msg.senderRole === "user"
-                                            ? "bg-black text-white"
-                                            : "bg-gray-100 text-black"
-                                    }`}
+                                    key={msg._id || i}
+                                    className={`flex flex-col ${isMine ? "items-start" : "items-end"}`}
                                 >
-                                    {msg.content}
+                                    <div
+                                        className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${isMine ? "bg-gray-100 text-black" : "bg-black text-white"
+                                            }`}
+                                    >
+                                        {msg.content}
+                                    </div>
+                                    <span className="mt-1 px-1 text-[10px] text-gray-400">
+                                        {formatTime(msg.createdAt)}
+                                    </span>
+                                </div>
+                            );
+                        })}
+
+                        {isSupportTyping && (
+                            <div className="flex items-end">
+                                <div className="rounded-2xl bg-gray-100 px-3 py-2 text-sm text-gray-400">
+                                    بيكتب...
                                 </div>
                             </div>
-                        ))}
+                        )}
+
                         <div ref={messagesEndRef} />
                     </div>
 
                     <div className="flex items-center gap-2 border-t border-gray-100 p-2">
                         <input
                             value={input}
-                            onChange={(e) => setInput(e.target.value)}
+                            onChange={(e) => handleInputChange(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && handleSend()}
                             placeholder="Type a message..."
                             className="flex-1 rounded-xl bg-gray-50 px-3 py-2 text-sm outline-none"
@@ -125,13 +222,34 @@ export default function ChatWidget() {
                             <Send size={16} />
                         </button>
                     </div>
-                </div>
+                </>
+            )}
+        </div>
+    );
+
+    if (variant === "inline") {
+        return chatBody;
+    }
+
+    if (pathname === "/contact") {
+        return null;
+    }
+
+    return (
+        <div className="fixed bottom-6 right-6 z-50">
+            {isOpen ? (
+                chatBody
             ) : (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="flex h-14 w-14 items-center justify-center rounded-full bg-black text-white shadow-lg transition hover:scale-105"
+                    className="relative flex h-14 w-14 items-center justify-center rounded-full bg-black text-white shadow-lg transition hover:scale-105"
                 >
                     <MessageCircle size={24} />
+                    {unreadCount > 0 && (
+                        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                            {unreadCount}
+                        </span>
+                    )}
                 </button>
             )}
         </div>

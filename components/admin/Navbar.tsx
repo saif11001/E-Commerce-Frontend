@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import { LogOut, Menu } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
 import { useUIStore } from "../../store/uiStore";
 import { useAuthStore } from "../../store/authStore";
 import api from "@/lib/axios";
@@ -14,6 +14,7 @@ const pageTitles: Record<string, string> = {
   orders: "Orders",
   coupons: "Coupons",
   users: "Users",
+  "support-chat": "Support Chat",
 };
 
 const roleLabels: Record<string, string> = {

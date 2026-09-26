@@ -6,7 +6,8 @@ export type Section =
   | "orders"
   | "coupons"
   | "shipping"
-  | "users";
+  | "users"
+  | "support-chat";
 export type Action = "view" | "create" | "update" | "delete";
 
 const FULL: Action[] = ["view", "create", "update", "delete"];
@@ -23,6 +24,7 @@ export const PERMISSIONS: Record<Role, Partial<Record<Section, Action[]>>> = {
     coupons: FULL,
     shipping: FULL,
     users: ["view", "delete"],
+    "support-chat": ["view"],
   },
   manager: {
     categories: NO_DELETE,
@@ -34,6 +36,7 @@ export const PERMISSIONS: Record<Role, Partial<Record<Section, Action[]>>> = {
   support: {
     orders: ["view"],
     users: ["view"],
+    "support-chat": ["view"],
   },
 };
 
@@ -48,6 +51,7 @@ const SECTIONS: Section[] = [
   "coupons",
   "shipping",
   "users",
+  "support-chat",
 ];
 
 export const isStaffRole = (role: unknown): role is Role => STAFF_ROLES.includes(role as Role);
