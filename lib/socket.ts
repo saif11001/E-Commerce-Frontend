@@ -1,7 +1,7 @@
 import api from "@/lib/axios";
 import { io, Socket } from "socket.io-client";
 
-const CHAT_SERVER_URL = "http://localhost:4000";
+const CHAT_SERVER_URL = process.env.NEXT_PUBLIC_CHAT_SERVER_URL || "http://localhost:4000";
 
 let socket: Socket | null = null;
 
@@ -14,8 +14,8 @@ export const connectToChat = async (): Promise<Socket | null> => {
 
         socket = io(CHAT_SERVER_URL, {
             auth: {
-                token: chatToken
-            }
+                token: chatToken,
+            },
         });
 
         return socket;
