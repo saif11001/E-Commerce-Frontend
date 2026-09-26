@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { connectToChat, disconnectChat, chatApiFetch } from "@/lib/socket";
 import { useAuthStore } from "@/store/authStore";
-import { usePathname } from "next/navigation";
 import type { Socket } from "socket.io-client";
 
 type Message = {
@@ -31,6 +31,7 @@ const formatTime = (dateStr?: string) => {
 export default function ChatWidget({ variant = "floating", onCloseInline }: ChatWidgetProps) {
     const { user, isAuthenticated } = useAuthStore();
     const pathname = usePathname();
+
     const [isOpen, setIsOpen] = useState(variant === "inline");
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
@@ -90,6 +91,7 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
                 const { messages: history } = await chatApiFetch(`/messages/${user?._id}`);
                 if (mounted) setMessages(history);
             } catch {
+                // couldn't load history, chat just starts empty
             }
         };
 
@@ -99,7 +101,15 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
             mounted = false;
             disconnectChat();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
+
+    // Jump to the latest message whenever the chat is opened or messages change
+    useEffect(() => {
+        if (isOpen) {
+            messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -144,14 +154,18 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
         }
     };
 
+    if (variant === "floating" && pathname === "/contact") {
+        return null;
+    }
+
     const containerClass =
         variant === "floating"
-            ? "flex h-96 w-80 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/10"
-            : "flex h-125 w-full flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white";
+            ? "flex h-125 w-80 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/10 sm:w-96"
+            : "flex h-140 w-full flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white";
 
     const chatBody = (
         <div className={containerClass}>
-            <div className="flex items-center justify-between bg-black px-4 py-3 text-white">
+            <div className="flex items-center justify-between bg-linear-to-b from-gray-800 via-gray-700 to-black px-4 py-3 text-white">
                 <span className="text-sm font-semibold">
                     {isAuthenticated ? (isConnected ? "Support Chat" : "Connecting...") : "Support Chat"}
                 </span>
@@ -163,14 +177,14 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
             {!isAuthenticated ? (
                 <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
                     <p className="text-sm text-gray-500">
-                        لازم تسجل دخول الأول عشان تقدر تكلم فريق الدعم.
+                        You need to log in first to chat with our support team.
                     </p>
                     <Link
                         href="/login"
                         onClick={handleClose}
-                        className="rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-white"
+                        className="rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
                     >
-                        تسجيل الدخول
+                        Log In
                     </Link>
                 </div>
             ) : (
@@ -184,8 +198,11 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
                                     className={`flex flex-col ${isMine ? "items-start" : "items-end"}`}
                                 >
                                     <div
-                                        className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${isMine ? "bg-gray-100 text-black" : "bg-black text-white"
-                                            }`}
+                                        className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
+                                            isMine
+                                                ? "bg-linear-to-b from-gray-800 via-gray-700 to-black text-white"
+                                                : "bg-gray-100 text-black"
+                                        }`}
                                     >
                                         {msg.content}
                                     </div>
@@ -199,7 +216,7 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
                         {isSupportTyping && (
                             <div className="flex items-end">
                                 <div className="rounded-2xl bg-gray-100 px-3 py-2 text-sm text-gray-400">
-                                    بيكتب...
+                                    Typing...
                                 </div>
                             </div>
                         )}
@@ -217,7 +234,7 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
                         />
                         <button
                             onClick={handleSend}
-                            className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-white"
+                            className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black text-white transition hover:opacity-90"
                         >
                             <Send size={16} />
                         </button>
@@ -231,10 +248,6 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
         return chatBody;
     }
 
-    if (pathname === "/contact") {
-        return null;
-    }
-
     return (
         <div className="fixed bottom-6 right-6 z-50">
             {isOpen ? (
@@ -242,7 +255,7 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
             ) : (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="relative flex h-14 w-14 items-center justify-center rounded-full bg-black text-white shadow-lg transition hover:scale-105"
+                    className="relative flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black text-white shadow-lg transition hover:scale-105"
                 >
                     <MessageCircle size={24} />
                     {unreadCount > 0 && (
