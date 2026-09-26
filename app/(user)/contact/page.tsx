@@ -50,7 +50,9 @@ export default function ContactPage() {
         </div>
 
         {showChat ? (
-          <ChatWidget variant="inline" onCloseInline={() => setShowChat(false)} />
+          <div className="h-125">
+              <ChatWidget variant="inline" onCloseInline={() => setShowChat(false)} />
+          </div>
         ) : (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-gray-100 bg-white p-10 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black text-white">
