@@ -48,6 +48,7 @@ type CartState = {
     updateItemQuantity: (itemId: string, action: "increase" | "decrease") => Promise<void>;
     removeItem: (itemId: string) => Promise<void>;
     clearCart: () => Promise<void>;
+    resetCart: () => void;
     applyCoupon: (code: string) => Promise<void>;
     removeCoupon: () => Promise<void>;
 };
@@ -149,6 +150,16 @@ export const useCartStore = create<CartState>((set, get) => ({
                 error: err?.response?.data?.message || "Failed to clear cart",
             });
         }
+    },
+
+    resetCart: () => {
+        set({
+            items: [],
+            coupon: null,
+            summary: emptySummary,
+            isMutating: false,
+            error: null,
+        });
     },
 
     applyCoupon: async (code) => {

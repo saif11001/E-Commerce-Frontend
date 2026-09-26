@@ -15,7 +15,7 @@ import StripePaymentForm from "@/features/checkout/components/StripePaymentForm"
 import OrderSuccessMessage from "@/features/checkout/components/OrderSuccessMessage";
 
 export default function CheckoutPage() {
-    const { items, coupon, summary, isLoading, fetchCart } = useCartStore();
+    const { items, coupon, summary, isLoading, fetchCart, resetCart } = useCartStore();
 
     const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
         fullName: "",
@@ -81,6 +81,7 @@ export default function CheckoutPage() {
             const { data } = await api.post("/checkout", { paymentMethod, shippingInfo });
 
             if (paymentMethod === "cod") {
+                resetCart();
                 setOrderPlaced(true);
             } else {
                 (window as any).__checkoutClientSecret = data.clientSecret;
@@ -159,7 +160,7 @@ export default function CheckoutPage() {
 
                             <div className="mt-5">
                                 <Elements stripe={stripePromise} options={{ clientSecret }}>
-                                    <StripePaymentForm onSuccess={() => setOrderPlaced(true)} />
+                                    <StripePaymentForm onSuccess={() => { resetCart(); setOrderPlaced(true); }} />
                                 </Elements>
                             </div>
                         </div>
