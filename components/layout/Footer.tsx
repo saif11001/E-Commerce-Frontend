@@ -72,7 +72,7 @@ export default function Footer() {
 
               <li>
                 <Link href="/products/featured" className="hover:text-black">
-                  Featured
+                  Featured Products
                 </Link>
               </li>
 
