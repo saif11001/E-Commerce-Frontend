@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import ChatWidget from "@/components/chat/ChatWidget";
+import CartDrawer from "@/features/cart/components/CartDrawer";
 import api from "@/lib/axios";
 import { useAuthStore } from "@/store/authStore";
-import Footer from "@/components/layout/Footer";
 
 export default function UserLayout({
     children
@@ -40,6 +42,8 @@ export default function UserLayout({
                 {children}
             </main>
             <Footer />
+            <CartDrawer />
+            <ChatWidget />
         </>
     )
 }
