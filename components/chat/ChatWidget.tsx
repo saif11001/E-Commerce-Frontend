@@ -268,10 +268,3 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
         </div>
     );
 }
-
-
-
-const containerClass =
-    variant === "floating"
-        ? "flex h-125 w-80 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/10 sm:w-96"
-        : "flex h-140 w-full flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white";
