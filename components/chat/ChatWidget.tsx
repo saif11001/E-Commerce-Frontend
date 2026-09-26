@@ -66,8 +66,8 @@ export default function ChatWidget() {
         if (!input.trim() || !socketRef.current || !user) return;
 
         socketRef.current.emit("chat message", {
-            conversationId: user.id,
-            content: input.trim()
+            conversationId: user._id,
+            content: input.trim(),
         });
 
         setInput("");
