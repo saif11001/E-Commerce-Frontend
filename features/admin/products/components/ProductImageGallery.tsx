@@ -13,21 +13,30 @@ export default function ProductImageGallery({
   const [activeIndex, setActiveIndex] = useState(0);
   const [thumbStart, setThumbStart] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   const visibleThumbs = images.slice(thumbStart, thumbStart + THUMBS_PER_VIEW);
   const canScrollBack = thumbStart > 0;
   const canScrollForward = thumbStart + THUMBS_PER_VIEW < images.length;
 
-  const scrollThumbs = (direction: "back" | "forward") => {
-    setThumbStart((prev) =>
-      direction === "forward"
-        ? Math.min(prev + THUMBS_PER_VIEW, images.length - THUMBS_PER_VIEW)
-        : Math.max(prev - THUMBS_PER_VIEW, 0)
-    );
-  };
-
   const goNext = () => setActiveIndex((prev) => (prev + 1) % images.length);
   const goPrev = () => setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+
+  // Arrows on the thumbnail row now flip between the actual images (not just scroll the strip),
+  // and keep the strip scrolled so the active thumbnail stays visible.
+  const flipImage = (direction: "back" | "forward") => {
+    if (direction === "forward") {
+      goNext();
+      setThumbStart((prev) =>
+        activeIndex + 1 >= prev + THUMBS_PER_VIEW
+          ? Math.min(prev + THUMBS_PER_VIEW, images.length - THUMBS_PER_VIEW)
+          : prev
+      );
+    } else {
+      goPrev();
+      setThumbStart((prev) => (activeIndex - 1 < prev ? Math.max(prev - THUMBS_PER_VIEW, 0) : prev));
+    }
+  };
 
   // Keyboard navigation while the lightbox is open.
   useEffect(() => {
@@ -42,6 +51,11 @@ export default function ProductImageGallery({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isLightboxOpen, images.length]);
+
+  // Reset zoom whenever the lightbox closes or the image changes.
+  useEffect(() => {
+    setIsZoomed(false);
+  }, [isLightboxOpen, activeIndex]);
 
   return (
     <div className="flex h-full flex-col">
@@ -66,12 +80,12 @@ export default function ProductImageGallery({
         </span>
       </button>
 
-      {/* Thumbnail strip pinned at the very bottom — always centered, arrows float over the edges instead of pushing the row */}
+      {/* Thumbnail strip pinned at the very bottom — arrows now flip through the images themselves */}
       <div className="relative mt-7 flex shrink-0 items-center justify-center sm:mt-9">
         {images.length > THUMBS_PER_VIEW && (
           <button
             type="button"
-            onClick={() => scrollThumbs("back")}
+            onClick={() => flipImage("back")}
             disabled={!canScrollBack}
             className="absolute left-[-15] z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black text-white shadow-md transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-30 sm:h-8 sm:w-8"
           >
@@ -79,7 +93,7 @@ export default function ProductImageGallery({
             <ChevronLeft size={16} className="hidden sm:block" />
           </button>
         )}
-        
+
         <div className="flex justify-center gap-1.5 sm:gap-2">
           {visibleThumbs.map((img, index) => {
             const realIndex = thumbStart + index;
@@ -101,7 +115,7 @@ export default function ProductImageGallery({
         {images.length > THUMBS_PER_VIEW && (
           <button
             type="button"
-            onClick={() => scrollThumbs("forward")}
+            onClick={() => flipImage("forward")}
             disabled={!canScrollForward}
             className="absolute right-[-15] z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black text-white shadow-md transition hover:bg-gray-100 hover:text-black disabled:cursor-not-allowed disabled:opacity-30 sm:h-8 sm:w-8"
           >
@@ -140,11 +154,18 @@ export default function ProductImageGallery({
             </button>
           )}
 
+          {/* Double-click toggles zoom in/out on the currently open image */}
           <img
             src={images[activeIndex]?.url}
             alt=""
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[85%] max-w-[80%] object-contain sm:max-h-full sm:max-w-full"
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+              setIsZoomed((prev) => !prev);
+            }}
+            className={`max-h-[85%] max-w-[80%] object-contain transition-transform duration-200 sm:max-h-full sm:max-w-full ${
+              isZoomed ? "scale-150 cursor-zoom-out sm:scale-175" : "cursor-zoom-in"
+            }`}
           />
 
           {images.length > 1 && (
