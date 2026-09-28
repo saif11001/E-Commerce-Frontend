@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { storiesImage } from "@/lib/heroImages";
 
 export default function HeroStories() {
   return (
@@ -31,7 +32,7 @@ export default function HeroStories() {
 
         <div className="relative h-64 w-full sm:h-96 lg:h-120 lg:w-1/2">
           <Image
-            src="/images (1).jpg"
+            src={storiesImage}
             alt="VENERDI new collection"
             fill
             priority

@@ -1,15 +1,6 @@
 import Link from "next/link";
 import { MonitorCloud } from "lucide-react";
-
-const images = [
-  { src: "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=600&q=80", alt: "Orange streetwear look" },
-  { src: "https://images.unsplash.com/photo-1544441893-675973e31985?w=600&q=80", alt: "Colorful jacket look" },
-  { src: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=80", alt: "Green coat look" },
-  { src: "https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=600&q=80", alt: "Yellow hat look" },
-  { src: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=600&q=80", alt: "Blue outfit look" },
-  { src: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80", alt: "Sunglasses look" },
-  { src: "https://images.unsplash.com/photo-1516826957135-700dedea698c?w=600&q=80", alt: "Green jacket look" },
-];
+import { collageImages as images } from "@/lib/heroImages";
 
 function RotatingPlayBadge() {
   return (
@@ -128,7 +119,6 @@ export default function HeroCollage() {
           </Link>
         </div>
 
-        {/* على الموبايل تظهر صورة الشمس (images[5])، وعلى sm+ ترجع صورة البلوظ (images[4]) - نفس الشكل والستايل */}
         <div
           className="hidden h-48 overflow-hidden bg-blue-100 sm:block sm:h-62 lg:h-82"
           style={{ clipPath: "url(#folderTabLeft)" }}
@@ -174,7 +164,6 @@ export default function HeroCollage() {
         </div>
       </div>
 
-      {/* مستطيل إضافي تحت الـ 3 أعمدة وزرار Featured Products - موبايل فقط */}
       <div className="mt-2 h-19 overflow-hidden rounded-2xl bg-gray-100 sm:hidden">
         <img src={images[1].src} alt={images[1].alt} className="h-full w-full object-cover" />
       </div>

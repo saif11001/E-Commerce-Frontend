@@ -1,11 +1,6 @@
 import { ShoppingBag, Tag, Truck, Sparkles, Star } from "lucide-react";
 import Image from "next/image";
-
-const images = {
-  right: "https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=800&q=80",
-  left: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=80",
-  center: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80",
-};
+import { photosImages as images } from "@/lib/heroImages";
 
 export default function HeroPhotos() {
   return (
@@ -61,12 +56,12 @@ export default function HeroPhotos() {
       </h1>
 
       <div className="relative z-10 mx-auto mt-6 flex h-72 w-full max-w-sm items-center justify-center sm:mt-10 sm:h-96">
-        <div className="absolute left-1/2 top-1/2 h-48 w-36 -translate-x-[calc(50%+55px)] -translate-y-1/2 overflow-hidden rounded-3xl opacity-45 blur-[3px] grayscale sm:h-72 sm:w-52 sm:-translate-x-[calc(50%+115px)]">
-          <Image src={images.left} alt="" fill sizes="208px" className="object-cover" />
+        <div className="absolute left-1/2 top-1/2 h-48 w-36 -translate-x-[calc(50%+55px)] -translate-y-1/2 overflow-hidden rounded-3xl opacity-45 blur-[3px] sm:h-72 sm:w-52 sm:-translate-x-[calc(50%+115px)]">
+          <Image src={images.right} alt="" fill sizes="208px" className="object-cover" />
         </div>
 
         <div className="absolute left-1/2 top-1/2 h-48 w-36 -translate-x-[calc(-50%+95px)] -translate-y-1/2 overflow-hidden rounded-3xl opacity-45 blur-[3px] sm:h-72 sm:w-52 sm:-translate-x-[calc(-50%+85px)]">
-          <Image src={images.right} alt="" fill sizes="208px" className="scale-x-[-1] object-cover" />
+          <Image src={images.left} alt="" fill sizes="208px" className="scale-x-[-1] object-cover" />
         </div>
 
         <div className="relative z-10 h-64 w-46 overflow-hidden rounded-[28px] bg-[#f2ede4] shadow-[0_20px_45px_-15px_rgba(0,0,0,0.25)] sm:h-88 sm:w-60 sm:rounded-4xl">
