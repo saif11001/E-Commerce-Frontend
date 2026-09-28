@@ -23,7 +23,7 @@ export default function NotFound() {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 362 145"
                 aria-hidden="true"
-                className="pointer-events-none absolute left-1/2 top-1/2 w-full max-w-3xl -translate-x-1/2 -translate-y-1/2 text-gray-100"
+                className="pointer-events-none absolute left-1/2 top-1/2 w-full max-w-3xl -translate-x-1/2 -translate-y-1/2 text-black opacity-[0.04]"
             >
                 <path
                     fill="currentColor"
@@ -32,54 +32,64 @@ export default function NotFound() {
             </svg>
 
             {/* Content */}
-            <div className="relative z-10 text-center">
-                <h1 className="text-balance text-5xl font-semibold tracking-tight text-black sm:text-7xl">
-                    Page not found
-                </h1>
-                <p className="mt-6 text-pretty text-lg font-medium text-gray-500 sm:text-xl">
-                    Lost, this page is. In another system, it may be.
+            <div className="relative z-10 w-full max-w-lg text-center">
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">
+                    Error 404
                 </p>
 
+                <h1 className="mt-3 text-4xl font-extrabold leading-tight sm:text-6xl">
+                    <span className="bg-linear-to-r from-gray-800 via-gray-700 to-black bg-clip-text text-transparent">
+                        Page not found
+                    </span>
+                </h1>
+
+                <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-gray-500 sm:text-base">
+                    Looks like this page took a day off. Try searching for what you
+                    need, or head back to the store.
+                </p>
+
+                {/* Search */}
                 <form
                     onSubmit={handleSearch}
-                    className="mx-auto mt-10 flex max-w-sm flex-col gap-3 sm:flex-row"
+                    className="mx-auto mt-8 flex max-w-md items-center gap-2 rounded-full border-2 border-gray-50 bg-white p-1.5 shadow-sm"
                 >
-                    <div className="relative w-full">
+                    <div className="relative min-w-0 flex-1">
                         <Search
                             size={16}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                         />
                         <input
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search"
-                            className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm text-black outline-none placeholder:text-gray-400 focus:border-black"
+                            placeholder="Search products..."
+                            className="w-full rounded-full bg-transparent py-2.5 pl-10 pr-3 text-sm text-black outline-none placeholder:text-gray-400"
                         />
                     </div>
                     <button
                         type="submit"
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-gray-50"
+                        className="shrink-0 rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
                     >
                         Search
                     </button>
                 </form>
 
-                <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-6">
+                {/* Actions */}
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
                     <button
                         type="button"
                         onClick={() => router.back()}
-                        className="group flex items-center justify-center rounded-lg bg-gray-100 px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-gray-200"
+                        className="group flex items-center justify-center rounded-full border border-black px-7 py-2.5 text-sm font-medium text-black transition hover:border-transparent hover:bg-linear-to-b hover:from-gray-800 hover:via-gray-700 hover:to-black hover:text-white"
                     >
                         <ArrowLeft
                             size={16}
-                            className="mr-2 opacity-60 transition-transform group-hover:-translate-x-0.5"
+                            className="mr-2 transition-transform group-hover:-translate-x-0.5"
                         />
                         Go back
                     </button>
 
                     <Link
                         href="/"
-                        className="-order-1 flex items-center justify-center rounded-lg bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:order-0"
+                        className="flex items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black px-7 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/20 transition hover:scale-[1.02] hover:opacity-90 active:scale-[0.98]"
                     >
                         Take me home
                     </Link>
