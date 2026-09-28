@@ -22,13 +22,13 @@ export default function UserLayout({
                 const { data } = await api.get("/profile");
                 setUser(data.user);
             } catch {
-                // مفيش يوزر مسجل دخول، ده طبيعي هنا لأن أي حد يقدر يتصفح كـ guest
+
             } finally {
                 setIsChecking(false);
             }
         };
         checkAuth();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, []);
 
     if (isChecking) {

@@ -77,7 +77,7 @@ export default function Footer() {
               </li>
 
               <li>
-                <Link href="/#categories" className="hover:text-black">
+                <Link href="/categories" className="hover:text-black">
                   Collections
                 </Link>
               </li>
@@ -98,8 +98,14 @@ export default function Footer() {
               </li>
 
               <li>
-                <Link href="/support" className="hover:text-black">
+                <Link href="/contact" className="hover:text-black">
                   Support
+                </Link>
+              </li>
+
+              <li>
+                <Link href="/track-orders" className="hover:text-black">
+                  Track Order
                 </Link>
               </li>
             </ul>
@@ -121,12 +127,6 @@ export default function Footer() {
               <li>
                 <Link href="/contact" className="hover:text-black">
                   Contact
-                </Link>
-              </li>
-
-              <li>
-                <Link href="/partners" className="hover:text-black">
-                  Partners
                 </Link>
               </li>
             </ul>

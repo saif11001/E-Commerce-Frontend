@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import Loading from "@/components/ui/Loading";
@@ -8,8 +8,6 @@ import Loading from "@/components/ui/Loading";
 export default function CartItemsList() {
     const { items, isMutating, updateItemQuantity, removeItem } = useCartStore();
 
-    // Click-and-drag scrolling for the cart items list (mouse only —
-    // touch already scrolls natively, this just adds the same feel for mouse users).
     const listRef = useRef<HTMLDivElement>(null);
     const isDragging = useRef(false);
     const startY = useRef(0);
@@ -34,8 +32,19 @@ export default function CartItemsList() {
         isDragging.current = false;
     };
 
+    const uniqueProductsCount = useMemo(() => {
+        const ids = new Set(items.map((item) => item.product._id));
+        return ids.size;
+    }, [items]);
+
     return (
         <div className="relative">
+            <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-gray-600">
+                    {uniqueProductsCount} {uniqueProductsCount === 1 ? "Product" : "Products"}
+                </h2>
+            </div>
+
             <div
                 ref={listRef}
                 onMouseDown={handleMouseDown}
@@ -46,10 +55,15 @@ export default function CartItemsList() {
             >
                 <div className="flex flex-col divide-y-2 divide-gray-50">
                     {items.map((item) => {
-                        const price =
-                            item.product.discountPrice > 0
-                                ? item.product.price - item.product.discountPrice
-                                : item.product.price;
+                        const hasDiscount = item.product.discountPrice > 0;
+                        const unitPrice = hasDiscount
+                            ? item.product.price - item.product.discountPrice
+                            : item.product.price;
+
+                        const totalOriginal = item.product.price * item.quantity;
+                        const totalDiscount = item.product.discountPrice * item.quantity;
+                        const totalFinal = unitPrice * item.quantity;
+
                         const outOfStock = !item.product.isActive || item.product.stock <= 0;
 
                         return (
@@ -67,7 +81,7 @@ export default function CartItemsList() {
                                     <div className="flex items-start justify-between gap-4">
                                         <div>
                                             <p className="font-semibold text-black">{item.product.name}</p>
-                                            <p className="mt-1 text-xs text-gray-500">Size: {item.size}</p>
+                                            <p className="mt-2 text-xs text-gray-500">Size: {item.size}</p>
                                             {outOfStock && (
                                                 <p className="mt-1 text-xs font-semibold text-red-500">
                                                     Out of stock
@@ -84,7 +98,7 @@ export default function CartItemsList() {
                                         </button>
                                     </div>
 
-                                    <div className="flex items-center justify-between">
+                                    <div className="mt-3 flex items-center justify-between">
                                         <div className="flex items-center gap-3 rounded-full border-2 border-gray-50 px-3 py-1.5">
                                             <button
                                                 disabled={isMutating}
@@ -105,9 +119,18 @@ export default function CartItemsList() {
                                             </button>
                                         </div>
 
-                                        <span className="text-base font-bold text-black">
-                                            E£: {price * item.quantity}
-                                        </span>
+                                        <div className="flex flex-col items-end">
+                                            {hasDiscount && (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-semibold text-green-600">
+                                                        - E£: {totalDiscount}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <span className="text-base font-bold text-black">
+                                                E£: {totalFinal}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

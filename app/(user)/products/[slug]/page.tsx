@@ -65,7 +65,7 @@ export default function ProductDetailsPage() {
         try {
             await addItem(currentProduct._id, selectedSize || "One Size", quantity);
         } catch {
-
+            // error already stored in cartStore.error
         }
     };
 
@@ -73,27 +73,30 @@ export default function ProductDetailsPage() {
         if (!validateSelection()) return;
         try {
             await addItem(currentProduct._id, selectedSize || "One Size", quantity);
-            router.push("/checkout");
         } catch {
-
+            // error already stored in cartStore.error
+            return;
         }
+        // Make sure the mini-cart drawer never shows up on this path — we're skipping it entirely.
+        useCartStore.getState().closeDrawer();
+        router.push("/checkout");
     };
 
     const actionButtons = (className: string) => (
-        <div className={`flex flex-col gap-3 ${className}`}>
+        <div className={`grid grid-cols-2 gap-3 ${className}`}>
+            <button
+                onClick={handleShopNow}
+                disabled={isMutating}
+                className="w-full rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black py-5 text-base font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90 disabled:opacity-60"
+            >
+                Buy Now
+            </button>
             <button
                 onClick={handleAddToCart}
                 disabled={isMutating}
                 className="w-full rounded-2xl bg-linear-to-b from-gray-800 via-gray-700 to-black py-5 text-base font-semibold text-white shadow-lg shadow-black/20 transition hover:opacity-90 disabled:opacity-60"
             >
                 {isMutating ? "Adding..." : "Add to Cart"}
-            </button>
-            <button
-                onClick={handleShopNow}
-                disabled={isMutating}
-                className="w-full rounded-2xl border-2 border-black py-5 text-base font-semibold text-black transition hover:bg-black hover:text-white disabled:opacity-60"
-            >
-                Shop Now
             </button>
         </div>
     );
@@ -158,11 +161,10 @@ export default function ProductDetailsPage() {
                                                     setSelectedSize(size);
                                                     setSizeError(false);
                                                 }}
-                                                className={`flex h-12 min-w-12 items-center justify-center rounded-full border-2 px-3 text-sm font-semibold transition ${
-                                                    selectedSize === size
+                                                className={`flex h-12 min-w-12 items-center justify-center rounded-full border-2 px-3 text-sm font-semibold transition ${selectedSize === size
                                                         ? "border-transparent bg-linear-to-b from-gray-800 via-gray-700 to-black text-white"
                                                         : "border-gray-200 bg-gray-50 text-black hover:border-black"
-                                                }`}
+                                                    }`}
                                             >
                                                 {size}
                                             </button>
@@ -191,7 +193,7 @@ export default function ProductDetailsPage() {
 
                                 <div>
                                     <p className="mb-2 text-sm text-gray-500">Quantity</p>
-                                    <div className="flex w-fit items-center gap-4 rounded-full border-2 border-gray-200 px-4 py-2">
+                                    <div className="flex w-fit items-center gap-4 rounded-full border-2 border-gray-50 px-4 py-2">
                                         <button
                                             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                                             className="flex h-6 w-6 items-center justify-center"

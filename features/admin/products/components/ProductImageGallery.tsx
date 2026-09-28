@@ -16,26 +16,32 @@ export default function ProductImageGallery({
   const [isZoomed, setIsZoomed] = useState(false);
 
   const visibleThumbs = images.slice(thumbStart, thumbStart + THUMBS_PER_VIEW);
-  const canScrollBack = thumbStart > 0;
-  const canScrollForward = thumbStart + THUMBS_PER_VIEW < images.length;
+  const canFlip = images.length > 1;
 
   const goNext = () => setActiveIndex((prev) => (prev + 1) % images.length);
   const goPrev = () => setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
 
-  // Arrows on the thumbnail row now flip between the actual images (not just scroll the strip),
-  // and keep the strip scrolled so the active thumbnail stays visible.
-  const flipImage = (direction: "back" | "forward") => {
-    if (direction === "forward") {
-      goNext();
-      setThumbStart((prev) =>
-        activeIndex + 1 >= prev + THUMBS_PER_VIEW
-          ? Math.min(prev + THUMBS_PER_VIEW, images.length - THUMBS_PER_VIEW)
-          : prev
+  // Keep the thumbnail strip scrolled so the active thumbnail is always visible,
+  // wrapping the strip back to the start/end when the image index wraps around.
+  useEffect(() => {
+    if (activeIndex < thumbStart) {
+      setThumbStart(
+        activeIndex === images.length - 1
+          ? Math.max(images.length - THUMBS_PER_VIEW, 0)
+          : Math.max(activeIndex - (THUMBS_PER_VIEW - 1), 0)
       );
-    } else {
-      goPrev();
-      setThumbStart((prev) => (activeIndex - 1 < prev ? Math.max(prev - THUMBS_PER_VIEW, 0) : prev));
+    } else if (activeIndex >= thumbStart + THUMBS_PER_VIEW) {
+      setThumbStart(
+        activeIndex === 0 ? 0 : Math.min(activeIndex, images.length - THUMBS_PER_VIEW)
+      );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIndex]);
+
+  // Arrows on the thumbnail row flip between the actual images and always wrap around.
+  const flipImage = (direction: "back" | "forward") => {
+    if (direction === "forward") goNext();
+    else goPrev();
   };
 
   // Keyboard navigation while the lightbox is open.
@@ -80,13 +86,13 @@ export default function ProductImageGallery({
         </span>
       </button>
 
-      {/* Thumbnail strip pinned at the very bottom — arrows now flip through the images themselves */}
+      {/* Thumbnail strip pinned at the very bottom — arrows flip through the images and wrap around at both ends */}
       <div className="relative mt-7 flex shrink-0 items-center justify-center sm:mt-9">
         {images.length > THUMBS_PER_VIEW && (
           <button
             type="button"
             onClick={() => flipImage("back")}
-            disabled={!canScrollBack}
+            disabled={!canFlip}
             className="absolute left-[-15] z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black text-white shadow-md transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-30 sm:h-8 sm:w-8"
           >
             <ChevronLeft size={14} className="sm:hidden" />
@@ -116,7 +122,7 @@ export default function ProductImageGallery({
           <button
             type="button"
             onClick={() => flipImage("forward")}
-            disabled={!canScrollForward}
+            disabled={!canFlip}
             className="absolute right-[-15] z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black text-white shadow-md transition hover:bg-gray-100 hover:text-black disabled:cursor-not-allowed disabled:opacity-30 sm:h-8 sm:w-8"
           >
             <ChevronRight size={14} className="sm:hidden" />

@@ -255,9 +255,10 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
             ) : (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="relative flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black text-white shadow-lg transition hover:scale-105"
+                    className="relative flex h-14 items-center gap-2 rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black px-5 text-white shadow-lg transition hover:scale-105"
                 >
-                    <MessageCircle size={24} />
+                    <span className="text-sm font-semibold">Chat</span>
+                    <MessageCircle size={20} />
                     {unreadCount > 0 && (
                         <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                             {unreadCount}

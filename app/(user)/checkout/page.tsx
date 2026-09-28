@@ -13,6 +13,7 @@ import CheckoutCouponBox from "@/features/checkout/components/CheckoutCouponBox"
 import CheckoutSummaryCard from "@/features/checkout/components/CheckoutSummaryCard";
 import StripePaymentForm from "@/features/checkout/components/StripePaymentForm";
 import OrderSuccessMessage from "@/features/checkout/components/OrderSuccessMessage";
+import CheckoutTotalBanner from "@/features/checkout/components/CheckoutTotalBanner";
 
 export default function CheckoutPage() {
     const { items, coupon, summary, isLoading, fetchCart, resetCart } = useCartStore();
@@ -118,6 +119,8 @@ export default function CheckoutPage() {
     return (
         <div className="mx-auto max-w-6xl px-6 py-10">
             <h1 className="mb-8 text-3xl font-extrabold text-black sm:text-4xl">Checkout</h1>
+            
+            <CheckoutTotalBanner />
 
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                 <div className="lg:col-span-2">
@@ -144,7 +147,7 @@ export default function CheckoutPage() {
                                 {isSubmitting
                                     ? "Processing..."
                                     : paymentMethod === "cod"
-                                    ? "Place Order"
+                                    ? "Complete order"
                                     : "Continue to Payment"}
                             </button>
                         </form>

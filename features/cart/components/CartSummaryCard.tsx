@@ -1,19 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useCartStore } from "@/store/cartStore";
 import ShippingZoneSelect from "./ShippingZoneSelect";
 import CouponBox from "./CouponBox";
 
 export default function CartSummaryCard() {
-    const { summary, fetchCart } = useCartStore();
+    const { items, coupon, summary, fetchCart } = useCartStore();
     const [governorate, setGovernorate] = useState("");
 
     const handleGovernorateChange = (value: string) => {
         setGovernorate(value);
         fetchCart(value || undefined);
     };
+
+    // خصم المنتجات نفسها (من discountPrice) بمعزل عن الكوبون
+    const productsDiscount = useMemo(
+        () => items.reduce((sum, item) => sum + item.product.discountPrice * item.quantity, 0),
+        [items]
+    );
+
+    // خصم الكوبون = الخصم الكلي اللي راجع من الباك اند ناقص خصم المنتجات
+    const couponDiscount = Math.max(0, summary.discount - productsDiscount);
 
     return (
         <div className="sticky top-24 rounded-3xl border-2 border-gray-50 p-6">
@@ -29,10 +38,28 @@ export default function CartSummaryCard() {
                     <span className="font-semibold text-black">E£: {summary.itemsPrice}</span>
                 </div>
 
-                {summary.discount > 0 && (
+                {productsDiscount > 0 && (
                     <div className="flex justify-between text-gray-500">
-                        <span>Discount</span>
-                        <span className="font-semibold text-green-600">- E£: {summary.discount}</span>
+                        <span>Products Discount</span>
+                        <span className="font-semibold text-green-600">
+                            - E£: {productsDiscount}
+                        </span>
+                    </div>
+                )}
+
+                {couponDiscount > 0 && coupon && (
+                    <div className="flex justify-between text-gray-500">
+                        <span>
+                            Coupon <span className="text-xs text-gray-400">({coupon.code})</span>
+                        </span>
+                        <span className="font-semibold text-green-600">
+                            - E£: {couponDiscount}
+                            {coupon.discountType === "percentage" && (
+                                <span className="ml-1 text-xs text-gray-400">
+                                    ({coupon.discountValue}%)
+                                </span>
+                            )}
+                        </span>
                     </div>
                 )}
 
