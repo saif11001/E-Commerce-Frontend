@@ -17,8 +17,7 @@ export default function NotFound() {
     };
 
     return (
-        <div className="relative flex min-h-[70vh] items-center justify-center overflow-hidden px-6 py-16">
-            {/* Big 404 in the background */}
+        <div className="relative flex min-h-[110vh] items-center justify-center overflow-hidden px-6 py-16">
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 362 145"
@@ -31,7 +30,6 @@ export default function NotFound() {
                 />
             </svg>
 
-            {/* Content */}
             <div className="relative z-10 w-full max-w-lg text-center">
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">
                     Error 404
@@ -48,32 +46,6 @@ export default function NotFound() {
                     need, or head back to the store.
                 </p>
 
-                {/* Search */}
-                <form
-                    onSubmit={handleSearch}
-                    className="mx-auto mt-8 flex max-w-md items-center gap-2 rounded-full border-2 border-gray-50 bg-white p-1.5 shadow-sm"
-                >
-                    <div className="relative min-w-0 flex-1">
-                        <Search
-                            size={16}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                        />
-                        <input
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search products..."
-                            className="w-full rounded-full bg-transparent py-2.5 pl-10 pr-3 text-sm text-black outline-none placeholder:text-gray-400"
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        className="shrink-0 rounded-full bg-linear-to-b from-gray-800 via-gray-700 to-black px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                    >
-                        Search
-                    </button>
-                </form>
-
-                {/* Actions */}
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
                     <button
                         type="button"
