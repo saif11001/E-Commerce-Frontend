@@ -17,7 +17,7 @@ export default function NotFound() {
     };
 
     return (
-        <div className="relative flex min-h-[110vh] items-center justify-center overflow-hidden px-6 py-16">
+        <div className="relative flex min-h-[100vh] items-center justify-center overflow-hidden px-6 py-16">
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 362 145"
