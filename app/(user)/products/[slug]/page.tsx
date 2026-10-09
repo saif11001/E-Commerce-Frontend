@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useShopProductStore } from "@/store/shopProductStore";
@@ -18,6 +18,8 @@ export default function ProductDetailsPage() {
     const [selectedSize, setSelectedSize] = useState<string | null>(null);
     const [quantity, setQuantity] = useState(1);
     const [sizeError, setSizeError] = useState(false);
+
+    const sizeSectionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (slug) fetchProductBySlug(slug);
@@ -54,6 +56,8 @@ export default function ProductDetailsPage() {
     const validateSelection = () => {
         if (currentProduct.sizes?.length > 0 && !selectedSize) {
             setSizeError(true);
+            // bring the size section (and its error message) into view
+            sizeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
             return false;
         }
         setSizeError(false);
@@ -144,7 +148,7 @@ export default function ProductDetailsPage() {
 
                         <div className="mt-4 flex flex-col gap-5">
                             {currentProduct.sizes?.length > 0 && (
-                                <div>
+                                <div ref={sizeSectionRef}>
                                     <div className="mb-2 flex items-center justify-between">
                                         <p className="text-sm text-gray-500">Size</p>
                                         {sizeError && (

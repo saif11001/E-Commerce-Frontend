@@ -22,6 +22,9 @@ type ChatWidgetProps = {
     onCloseInline?: () => void;
 };
 
+const WELCOME_MESSAGE =
+    "Welcome to Venerdi 👋 We're so happy to have you here! Send us your question and our support team will get back to you as soon as possible.";
+
 const formatTime = (dateStr?: string) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
@@ -190,6 +193,12 @@ export default function ChatWidget({ variant = "floating", onCloseInline }: Chat
             ) : (
                 <>
                     <div className="flex-1 space-y-2 overflow-y-auto p-3">
+                        <div className="flex flex-col items-end">
+                            <div className="max-w-[75%] rounded-2xl bg-gray-100 px-3 py-2 text-sm text-black">
+                                {WELCOME_MESSAGE}
+                            </div>
+                        </div>
+
                         {messages.map((msg, i) => {
                             const isMine = msg.senderRole === "user";
                             return (
