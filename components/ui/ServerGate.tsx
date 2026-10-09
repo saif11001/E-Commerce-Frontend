@@ -125,7 +125,7 @@ export default function ServerGate({ children }: { children: React.ReactNode }) 
             usually takes 30–50 seconds, and it only happens on the first visit.
           </p>
           <p lang="ar" dir="rtl" className="text-sm leading-7 text-gray-500">
-            المشروع مرفوع على سيرفر مجاني بينام لما مفيش حد بيستخدمه. تشغيله بياخد من 30 لـ 50
+            المشروع مرفوع على سيرفر مجاني . تشغيله بياخد من 30 لـ 50
             ثانية، وبيحصل في أول زيارة بس.
           </p>
         </div>
