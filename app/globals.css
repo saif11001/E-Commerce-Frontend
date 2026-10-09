@@ -4,16 +4,18 @@ body {
   background-color: #ebebeb;
 }
 
-/* iOS Safari only: Android and desktop are not affected */
+/* iOS Safari only: stops iOS from zooming in when an input gets focus (Android doesn't zoom) */
 @supports (-webkit-touch-callout: none) {
-  /* stops iOS from zooming in when an input gets focus */
   input:not([type="checkbox"]):not([type="radio"]):not([inputmode="numeric"]),
   textarea,
   select {
     font-size: 16px;
   }
+}
 
-  /* 100vh on iOS includes the area behind the browser toolbar */
+/* Phones and tablets (iPhone + Android Chrome):
+   100vh includes the area behind the browser toolbar, so use the dynamic viewport instead */
+@media (hover: none) and (pointer: coarse) {
   .h-screen {
     height: 100dvh;
   }
