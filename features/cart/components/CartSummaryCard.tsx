@@ -25,7 +25,7 @@ export default function CartSummaryCard() {
     const couponDiscount = Math.max(0, summary.discount - productsDiscount);
 
     return (
-        <div className="sticky top-24 rounded-3xl border-2 border-gray-50 p-6">
+        <div className="rounded-3xl border-2 border-gray-50 p-4 sm:p-6 lg:sticky lg:top-24">
             <h2 className="text-lg font-extrabold text-black">Order Summary</h2>
 
             <div className="mt-4">

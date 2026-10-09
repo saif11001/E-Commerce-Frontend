@@ -53,7 +53,7 @@ export default function Navbar() {
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 bg-white px-4 sm:h-20 sm:px-8">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-gray-100 bg-white px-4 sm:h-20 sm:px-8">
       <div className="flex min-w-0 items-center gap-3">
         <button
           type="button"

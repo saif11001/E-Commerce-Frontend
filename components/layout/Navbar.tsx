@@ -127,7 +127,7 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                      href="/settings"
+                      href="/profile/edit"
                       onClick={() => setIsProfileOpen(false)}
                       className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm hover:bg-gray-100"
                     >
@@ -224,7 +224,7 @@ export default function Navbar() {
               My Orders
             </Link>
             <Link
-              href="/settings"
+              href="/profile/edit"
               onClick={() => setIsProfileOpen(false)}
               className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm hover:bg-gray-100"
             >
