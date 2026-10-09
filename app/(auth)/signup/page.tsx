@@ -41,7 +41,7 @@ export default function Signup() {
 
         setUser(data.user);
 
-        router.push("/verify-email");
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (error: any) {
         setError(error.response?.data?.message || "Something went wrong");
     } finally {

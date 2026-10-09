@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+const API_ORIGIN =
+  process.env.API_ORIGIN || "https://ecommerce-api-dd5z.onrender.com";
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -16,6 +19,15 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${API_ORIGIN}/api/v1/:path*`,
+      },
+    ];
   },
 };
 

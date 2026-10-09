@@ -85,7 +85,6 @@ export default function CheckoutPage() {
                 resetCart();
                 setOrderPlaced(true);
             } else {
-                (window as any).__checkoutClientSecret = data.clientSecret;
                 setClientSecret(data.clientSecret);
             }
         } catch (err: any) {
@@ -163,7 +162,7 @@ export default function CheckoutPage() {
 
                             <div className="mt-5">
                                 <Elements stripe={stripePromise} options={{ clientSecret }}>
-                                    <StripePaymentForm onSuccess={() => { resetCart(); setOrderPlaced(true); }} />
+                                    <StripePaymentForm clientSecret={clientSecret} onSuccess={() => { resetCart(); setOrderPlaced(true); }} />
                                 </Elements>
                             </div>
                         </div>

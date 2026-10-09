@@ -70,7 +70,8 @@ export default function VerifyEmail() {
 
     setIsLoading(true);
     try {
-      const { data } = await api.post("/auth/verify-email", { token });
+      const email = new URLSearchParams(window.location.search).get("email") || "";
+      const { data } = await api.post("/auth/verify-email", { email, token });
 
       setUser(data.user);
       router.push("/");

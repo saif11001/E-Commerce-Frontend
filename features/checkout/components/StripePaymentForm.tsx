@@ -1,29 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 
 type StripePaymentFormProps = {
+    clientSecret: string;
     onSuccess: () => void;
 };
 
-const cardElementOptions = {
+const isIOS = () =>
+    typeof navigator !== "undefined" &&
+    (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+
+const getCardElementOptions = (fontSize: string) => ({
     style: {
         base: {
-            fontSize: "14px",
+            fontSize,
             color: "#000",
             fontFamily: "inherit",
             "::placeholder": { color: "#9ca3af" },
         },
         invalid: { color: "#ef4444" },
     },
-};
+});
 
-export default function StripePaymentForm({ onSuccess }: StripePaymentFormProps) {
+export default function StripePaymentForm({ clientSecret, onSuccess }: StripePaymentFormProps) {
     const stripe = useStripe();
     const elements = useElements();
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState("");
+
+    // 16px on iOS stops Safari from zooming into the card field, other devices keep 14px
+    const cardElementOptions = useMemo(
+        () => getCardElementOptions(isIOS() ? "16px" : "14px"),
+        []
+    );
 
     const handlePay = async () => {
         if (!stripe || !elements) return;
@@ -35,7 +47,7 @@ export default function StripePaymentForm({ onSuccess }: StripePaymentFormProps)
         setError("");
 
         const { error: stripeError } = await stripe.confirmCardPayment(
-            (window as any).__checkoutClientSecret,
+            clientSecret,
             { payment_method: { card: cardElement } }
         );
 

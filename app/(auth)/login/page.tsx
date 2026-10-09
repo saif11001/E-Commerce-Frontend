@@ -39,7 +39,7 @@ export default function Login() {
       }
 
       if(!data.user.isVerified) {
-        router.push("/verify-email");
+        router.push(`/verify-email?email=${encodeURIComponent(data.user.email)}`);
         return;
       }
 

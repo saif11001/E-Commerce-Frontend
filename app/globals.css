@@ -3,3 +3,31 @@
 body {
   background-color: #ebebeb;
 }
+
+/* iOS Safari only: Android and desktop are not affected */
+@supports (-webkit-touch-callout: none) {
+  /* stops iOS from zooming in when an input gets focus */
+  input:not([type="checkbox"]):not([type="radio"]):not([inputmode="numeric"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  /* 100vh on iOS includes the area behind the browser toolbar */
+  .h-screen {
+    height: 100dvh;
+  }
+
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+
+  /* login / signup / forgot / reset password: stop the card from being clipped */
+  [class*="h-[calc(100vh-80px)]"][class*="overflow-hidden"] {
+    height: auto;
+    min-height: calc(100dvh - 80px);
+    overflow: visible;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import ServerGate from "@/components/ui/ServerGate";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,7 +19,9 @@ export default function RootLayout({ children
     return(
         <html lang="en">
             <body>
-                <main>{children}</main>
+                <ServerGate>
+                    <main>{children}</main>
+                </ServerGate>
             </body>
         </html>
     )
